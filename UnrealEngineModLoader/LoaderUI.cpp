@@ -186,41 +186,6 @@ void ShowLogicMods()
 	}
 }
 
-void ShowCoreMods()
-{
-	if (!ImGui::CollapsingHeader("Core Mods"))
-		return;
-
-	for (size_t i = 0; i < Global::GetGlobals()->CoreMods.size(); i++)
-	{
-		std::string str(Global::GetGlobals()->CoreMods[i]->ModName.begin(), Global::GetGlobals()->CoreMods[i]->ModName.end());
-		std::string ModLabel = str + "##cm" + std::to_string(i);
-		if (ImGui::TreeNode(ModLabel.c_str()))
-		{
-
-			std::string Author = "Created By: " + Global::GetGlobals()->CoreMods[i]->ModAuthors;
-			ImGui::Text(Author.c_str());
-			ImGui::Separator();
-			std::string Description = "Description: " + Global::GetGlobals()->CoreMods[i]->ModDescription;
-			ImGui::Text(Description.c_str());
-			ImGui::Separator();
-			std::string Version = "Version: " + Global::GetGlobals()->CoreMods[i]->ModVersion;
-			ImGui::Text(Version.c_str());
-			ImGui::Separator();
-
-			if (Global::GetGlobals()->CoreMods[i]->UseMenuButton && Global::GetGlobals()->CoreMods[i]->IsFinishedCreating)
-			{
-				std::string ButtonLabel = str + " Button" + "##cm" + std::to_string(i);
-				if (ImGui::Button(ButtonLabel.c_str()))
-				{
-					Global::GetGlobals()->CoreMods[i]->OnModMenuButtonPressed();
-				}
-			}
-
-			ImGui::TreePop();
-		}
-	}
-}
 
 void ShowTools()
 {
@@ -261,7 +226,6 @@ void DrawImGui()
 	ImGui::Spacing();
 	ImGui::Text("Unreal Mod Loader V: %s", MODLOADER_VERSION);
 	ShowLogicMods();
-	ShowCoreMods();
 	ShowTools();
 
 	ImGui::End();
@@ -403,7 +367,6 @@ void LoaderUI::LoaderD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 		style->TabRounding = 0.0f;
 		style->WindowRounding = 4.0f;
 		DrawImGui();
-		Global::GetGlobals()->eventSystem.dispatchEvent("DrawImGui");
 	}
 
 	ImGui::Render();
@@ -416,7 +379,6 @@ HRESULT __stdcall hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval
 	// LoaderUI initializes D3D objects, mods can then use those objects for drawing, hardware access, etc.
 	LoaderUI* UI = LoaderUI::GetUI();
 	UI->LoaderD3D11Present(pSwapChain, SyncInterval, Flags);
-	Global::GetGlobals()->eventSystem.dispatchEvent("DX11Present", UI->pDevice, UI->pContext, UI->pRenderTargetView);
 	return D3D11Present(pSwapChain, SyncInterval, Flags);
 }
 
