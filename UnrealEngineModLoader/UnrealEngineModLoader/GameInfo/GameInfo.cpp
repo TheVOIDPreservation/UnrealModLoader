@@ -141,7 +141,17 @@ void SetupProfile(std::string Path)
 			}
 			else
 			{
-				Log::Error("GObject Could Not Be Found!");
+				GObjectPat = Pattern::Find("44 8B 51 08 48 8D 05 ? ? ? ?");
+				if (GObjectPat != nullptr)
+				{
+					auto GObjectOffset = *reinterpret_cast<uint32_t*>(GObjectPat + 7);
+					GameProfile::SelectedGameProfile.GObject = (DWORD64)(GObjectPat + 11 + GObjectOffset);
+					Log::Info("GObject: 0x%p", GameProfile::SelectedGameProfile.GObject);
+				}
+				else
+				{
+					Log::Error("GObject Could Not Be Found!");
+				}
 			}
 			
 			auto GWorldPat = Pattern::Find("0F 2E ? 74 ? 48 8B 1D ? ? ? ? 48 85 DB 74");
